@@ -553,4 +553,16 @@ body {
     justify-content: center;
     text-align: center;
   }
+
+  .skip-videos {
+    right: 6px;
+    bottom: 6px;
+    transform: scale(0.5);
+    transform-origin: bottom right;
+  }
+
+  .skip-videos input {
+    width: 14px;
+    height: 14px;
+  }
 }
