@@ -215,9 +215,16 @@ export class Game {
     this.opponent.playPunchAttack(this.player.x, {
       onImpact: () => {
         playPunchSound();
+        this.player.takeDamage(HEALTH.WIN_COST);
         this.player.playHitReaction();
 
         this.effects.spawnSparks(this.player.x + 40, this.player.y - 160, 14);
+        this.effects.spawnDamageNumber(
+          this.player.x,
+          this.player.y - 200,
+          HEALTH.WIN_COST,
+          'received'
+        );
         this.effects.triggerFlash(0.35, 90);
         this.effects.triggerShake(7, 180);
       },
@@ -226,6 +233,11 @@ export class Game {
   }
 
   _afterResolve() {
+    if (this.player.health <= 0) {
+      this._endMatch(false);
+      return;
+    }
+
     // Opponent boxes empty → hook for your next feature (no auto end-screen yet)
     if (this.opponent.health <= 0) {
       if (!this._opponentDepleted) {
