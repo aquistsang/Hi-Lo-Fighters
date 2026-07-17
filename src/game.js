@@ -57,6 +57,7 @@ export class Game {
    *   victoryVideoEl?: HTMLVideoElement,
    *   victoryPrezzVideoEl?: HTMLVideoElement,
    *   defeatVideoEl?: HTMLVideoElement,
+   *   defeatPrezzVideoEl?: HTMLVideoElement,
    *   balanceEl?: HTMLElement,
    *   betInput?: HTMLInputElement,
    *   winValueEl?: HTMLElement,
@@ -72,6 +73,7 @@ export class Game {
    *   btnCopyClient?: HTMLButtonElement,
    *   skipVideosToggle?: HTMLInputElement,
    *   btnCheat2pDamage?: HTMLButtonElement,
+   *   btnCheat1pDamage?: HTMLButtonElement,
    *   btnToggleMusic?: HTMLButtonElement,
    *   btnToggleSfx?: HTMLButtonElement,
    *   charSelect?: HTMLElement,
@@ -429,6 +431,7 @@ export class Game {
   /**
    * Called when the player's 5 yellow boxes are all gone (2P wins).
    * Banner → defeat video → lose screen.
+   * Prezz uses a dedicated defeat cutscene.
    */
   onPlayerBoxesDepleted() {
     this.input.setEnabled(false);
@@ -441,8 +444,13 @@ export class Game {
     this.effects.triggerFlash(0.6, 220);
     this.effects.triggerShake(10, 280);
 
+    const defeatEl =
+      this.characterId === 'trump' && this.ui.defeatPrezzVideoEl
+        ? this.ui.defeatPrezzVideoEl
+        : this.ui.defeatVideoEl;
+
     window.setTimeout(() => {
-      this._playCutscene(this.ui.defeatVideoEl, () => this._endMatch(false));
+      this._playCutscene(defeatEl, () => this._endMatch(false));
     }, bannerMs);
   }
 
@@ -496,6 +504,7 @@ export class Game {
     if (this.ui.victoryVideoEl) this.ui.victoryVideoEl.hidden = true;
     if (this.ui.victoryPrezzVideoEl) this.ui.victoryPrezzVideoEl.hidden = true;
     if (this.ui.defeatVideoEl) this.ui.defeatVideoEl.hidden = true;
+    if (this.ui.defeatPrezzVideoEl) this.ui.defeatPrezzVideoEl.hidden = true;
     video.hidden = false;
 
     this._setCutsceneActive(true);
@@ -695,6 +704,10 @@ export class Game {
       this.ui.defeatVideoEl.pause();
       this.ui.defeatVideoEl.hidden = true;
     }
+    if (this.ui.defeatPrezzVideoEl instanceof HTMLVideoElement) {
+      this.ui.defeatPrezzVideoEl.pause();
+      this.ui.defeatPrezzVideoEl.hidden = true;
+    }
     this.ui.overlay.hidden = true;
     this.ui.overlay.classList.remove('win', 'lose');
     if (this.ui.btnRestart) {
@@ -751,15 +764,16 @@ export class Game {
     const id = this.characterId;
     const char = getCharacter(id);
     this.player.name = char.name;
-    this.player.drawScale = id === 'trump' ? 0.42 : STAGE.FIGHTER_SCALE;
     this.player.registerAnimations(createAnimationsForCharacter(id));
-    this.player.reset();
     // 2P always stays the original opponent
     this.opponent.name = 'CPU';
     this.opponent.drawScale = STAGE.OPPONENT_SCALE;
     this.opponent.registerAnimations(
       createOpponentAnimations(assets.opponentFighter, assets.opponentPunch)
     );
+    // Match 1P on-screen height to 2P (sprite plates differ after crop)
+    this._matchPlayerScaleToOpponent();
+    this.player.reset();
     this.opponent.reset();
 
     if (this.ui.charSelect) {
@@ -767,6 +781,17 @@ export class Game {
       this.ui.charSelect.setAttribute('aria-hidden', 'true');
     }
     this._returnToBetting();
+  }
+
+  /** Scale 1P so idle height matches 2P on the stage. */
+  _matchPlayerScaleToOpponent() {
+    const playerH = this.player.anim.definitions.get('idle')?.frameH;
+    const opponentH = this.opponent.anim.definitions.get('idle')?.frameH;
+    if (!playerH || !opponentH) {
+      this.player.drawScale = STAGE.FIGHTER_SCALE;
+      return;
+    }
+    this.player.drawScale = (opponentH * this.opponent.drawScale) / playerH;
   }
 
   /**
@@ -921,9 +946,8 @@ export class Game {
   }
 
   _bindCheatUi() {
-    const btn = this.ui.btnCheat2pDamage;
-    if (!btn) return;
-    btn.addEventListener('click', () => this._cheatDamageOpponent(4));
+    this.ui.btnCheat2pDamage?.addEventListener('click', () => this._cheatDamageOpponent(4));
+    this.ui.btnCheat1pDamage?.addEventListener('click', () => this._cheatDamagePlayer(4));
   }
 
   _bindAudioTogglesUi() {
@@ -991,6 +1015,38 @@ export class Game {
     if (this.opponent.health <= 0 && !this._opponentDepleted) {
       this._opponentDepleted = true;
       this.onOpponentBoxesDepleted();
+    }
+  }
+
+  /** Dev cheat: strip health boxes from 1P (player). */
+  _cheatDamagePlayer(amount = 4) {
+    if (
+      this.phase === GAME_PHASE.RESOLVING ||
+      this.phase === GAME_PHASE.GAME_OVER ||
+      this.cutsceneActive
+    ) {
+      return;
+    }
+
+    const dealt = Math.min(amount, this.player.health);
+    if (dealt <= 0) return;
+
+    this.player.takeDamage(dealt);
+    this.player.playHitReaction();
+    playPunchSound();
+    this.effects.spawnSparks(this.player.x + 40, this.player.y - 160, 14);
+    this.effects.spawnDamageNumber(
+      this.player.x,
+      this.player.y - 200,
+      dealt,
+      'received'
+    );
+    this.effects.triggerFlash(0.35, 90);
+    this.effects.triggerShake(7, 180);
+    this._syncHud();
+
+    if (this.player.health <= 0) {
+      this.onPlayerBoxesDepleted();
     }
   }
 

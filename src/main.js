@@ -18,6 +18,7 @@ const victoryOverlay = /** @type {HTMLElement} */ (document.getElementById('vict
 const victoryVideoEl = /** @type {HTMLVideoElement} */ (document.getElementById('victoryVideo'));
 const victoryPrezzVideoEl = /** @type {HTMLVideoElement} */ (document.getElementById('victoryPrezzVideo'));
 const defeatVideoEl = /** @type {HTMLVideoElement} */ (document.getElementById('defeatVideo'));
+const defeatPrezzVideoEl = /** @type {HTMLVideoElement} */ (document.getElementById('defeatPrezzVideo'));
 const streakEl = /** @type {HTMLElement} */ (document.getElementById('streakValue'));
 const roundHistoryEl = /** @type {HTMLElement} */ (document.getElementById('roundHistory'));
 const balanceEl = /** @type {HTMLElement} */ (document.getElementById('balanceValue'));
@@ -39,6 +40,7 @@ const btnCopyHash = /** @type {HTMLButtonElement} */ (document.getElementById('b
 const btnCopyClient = /** @type {HTMLButtonElement} */ (document.getElementById('btnCopyClient'));
 const skipVideosToggle = /** @type {HTMLInputElement} */ (document.getElementById('skipVideosToggle'));
 const btnCheat2pDamage = /** @type {HTMLButtonElement} */ (document.getElementById('btnCheat2pDamage'));
+const btnCheat1pDamage = /** @type {HTMLButtonElement} */ (document.getElementById('btnCheat1pDamage'));
 const btnToggleMusic = /** @type {HTMLButtonElement} */ (document.getElementById('btnToggleMusic'));
 const btnToggleSfx = /** @type {HTMLButtonElement} */ (document.getElementById('btnToggleSfx'));
 const charSelect = /** @type {HTMLElement} */ (document.getElementById('charSelect'));
@@ -61,6 +63,7 @@ const game = new Game(canvas, {
   victoryVideoEl,
   victoryPrezzVideoEl,
   defeatVideoEl,
+  defeatPrezzVideoEl,
   streakEl,
   roundHistoryEl,
   balanceEl,
@@ -82,6 +85,7 @@ const game = new Game(canvas, {
   btnCopyClient,
   skipVideosToggle,
   btnCheat2pDamage,
+  btnCheat1pDamage,
   btnToggleMusic,
   btnToggleSfx,
   charSelect,

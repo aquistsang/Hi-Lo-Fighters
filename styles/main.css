@@ -545,11 +545,17 @@ body {
   filter: brightness(1.15);
 }
 
-.btn-cheat-2p {
+.cheat-buttons {
   position: absolute;
   top: 10px;
   left: 10px;
   z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.btn-cheat {
   appearance: none;
   padding: 6px 8px;
   border: 2px solid #3a3048;
@@ -563,12 +569,12 @@ body {
   user-select: none;
 }
 
-.btn-cheat-2p:hover {
+.btn-cheat:hover {
   color: var(--text);
   border-color: var(--gold);
 }
 
-.btn-cheat-2p:active {
+.btn-cheat:active {
   transform: translateY(1px);
 }
 
@@ -897,7 +903,7 @@ body {
     font-size: 6px;
   }
 
-  .btn-cheat-2p {
+  .cheat-buttons {
     top: 6px;
     left: 6px;
     transform: scale(0.5);

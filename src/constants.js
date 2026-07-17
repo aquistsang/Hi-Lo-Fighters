@@ -25,7 +25,7 @@ export const STAGE = {
   PLAYER_X: 250,
   OPPONENT_X: 710,
   FIGHTER_SCALE: 0.46,
-  /** Match 1P on-screen height after crop (~823px content) */
+  /** 2P draw scale; 1P is matched to this on-screen height at fight start */
   OPPONENT_SCALE: 0.39,
 };
 

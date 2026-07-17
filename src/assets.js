@@ -116,10 +116,10 @@ export async function loadAssets() {
     loadImage('assets/hud-overlay.png'),
   ]);
 
-  // Green-screen idle plate → transparent
-  const player = keyOutGreen(raw);
-  // Kick plate already has alpha; soft-punch leftover pure black fringe
-  const kick = keyOutBlack(kickRaw, 10);
+  // Green-screen idle plate → transparent, crop empty padding (feet on FLOOR_Y)
+  const player = cropToOpaque(keyOutGreen(raw));
+  // Kick plate already has alpha; soft-punch leftover pure black fringe, then crop
+  const kick = cropToOpaque(keyOutBlack(kickRaw, 10));
   // 2P plates → key green, crop empty padding (feet on FLOOR_Y), flip to face 1P
   const opponent = flipHorizontal(cropToOpaque(keyOutGreen(opponentRaw)));
   const punch = flipHorizontal(cropToOpaque(keyOutGreen(punchRaw)));
