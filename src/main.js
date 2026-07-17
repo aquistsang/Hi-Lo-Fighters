@@ -16,6 +16,7 @@ const overlayTitle = /** @type {HTMLElement} */ (document.getElementById('overla
 const overlaySub = /** @type {HTMLElement} */ (document.getElementById('overlaySub'));
 const victoryOverlay = /** @type {HTMLElement} */ (document.getElementById('victoryOverlay'));
 const victoryVideoEl = /** @type {HTMLVideoElement} */ (document.getElementById('victoryVideo'));
+const victoryPrezzVideoEl = /** @type {HTMLVideoElement} */ (document.getElementById('victoryPrezzVideo'));
 const defeatVideoEl = /** @type {HTMLVideoElement} */ (document.getElementById('defeatVideo'));
 const streakEl = /** @type {HTMLElement} */ (document.getElementById('streakValue'));
 const roundHistoryEl = /** @type {HTMLElement} */ (document.getElementById('roundHistory'));
@@ -58,6 +59,7 @@ const game = new Game(canvas, {
   overlaySub,
   victoryOverlay,
   victoryVideoEl,
+  victoryPrezzVideoEl,
   defeatVideoEl,
   streakEl,
   roundHistoryEl,

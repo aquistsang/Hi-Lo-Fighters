@@ -30,6 +30,8 @@ import {
   isSfxMuted,
   toggleMusicMuted,
   toggleSfxMuted,
+  pauseFightMusic,
+  resumeFightMusic,
 } from './audio.js';
 import { Fairness } from './fairness.js';
 
@@ -55,6 +57,7 @@ export class Game {
    *   rtpLastEl?: HTMLElement,
    *   victoryOverlay?: HTMLElement,
    *   victoryVideoEl?: HTMLVideoElement,
+   *   victoryPrezzVideoEl?: HTMLVideoElement,
    *   defeatVideoEl?: HTMLVideoElement,
    *   balanceEl?: HTMLElement,
    *   betInput?: HTMLInputElement,
@@ -448,6 +451,7 @@ export class Game {
   /**
    * Called when the opponent's 5 yellow boxes are all gone.
    * Banner → victory video → round-clear (KEEP FIGHTING).
+   * Prezz uses a dedicated victory cutscene + pauses fight BGM until it ends.
    */
   onOpponentBoxesDepleted() {
     this.input.setEnabled(false);
@@ -461,8 +465,13 @@ export class Game {
     this.effects.triggerFlash(0.6, 220);
     this.effects.triggerShake(10, 280);
 
+    const victoryEl =
+      this.characterId === 'trump' && this.ui.victoryPrezzVideoEl
+        ? this.ui.victoryPrezzVideoEl
+        : this.ui.victoryVideoEl;
+
     window.setTimeout(() => {
-      this._playCutscene(this.ui.victoryVideoEl, () => this._showRoundClear());
+      this._playCutscene(victoryEl, () => this._showRoundClear());
     }, videoDelayMs);
   }
 
@@ -487,10 +496,12 @@ export class Game {
 
     // Only one clip visible in the shared overlay
     if (this.ui.victoryVideoEl) this.ui.victoryVideoEl.hidden = true;
+    if (this.ui.victoryPrezzVideoEl) this.ui.victoryPrezzVideoEl.hidden = true;
     if (this.ui.defeatVideoEl) this.ui.defeatVideoEl.hidden = true;
     video.hidden = false;
 
     this._setCutsceneActive(true);
+    pauseFightMusic();
     this.effects.specialBanner.active = false;
     this.effects.sparks = [];
     this.effects.floatTexts = [];
@@ -510,6 +521,7 @@ export class Game {
       overlay.setAttribute('aria-hidden', 'true');
       this._setCutsceneActive(false);
       startStageVideo();
+      resumeFightMusic();
       onDone();
     };
 
@@ -678,6 +690,10 @@ export class Game {
     if (this.ui.victoryVideoEl instanceof HTMLVideoElement) {
       this.ui.victoryVideoEl.pause();
       this.ui.victoryVideoEl.hidden = true;
+    }
+    if (this.ui.victoryPrezzVideoEl instanceof HTMLVideoElement) {
+      this.ui.victoryPrezzVideoEl.pause();
+      this.ui.victoryPrezzVideoEl.hidden = true;
     }
     if (this.ui.defeatVideoEl instanceof HTMLVideoElement) {
       this.ui.defeatVideoEl.pause();
